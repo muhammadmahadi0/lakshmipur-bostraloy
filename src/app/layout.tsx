@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import { Toaster } from "sonner"
 
 export const metadata: Metadata = {
   title: "লক্ষ্মীপুর বস্ত্রালয় | Lakshmipur Bostraloy",
@@ -19,6 +20,7 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <Toaster position="top-right" richColors closeButton />
       </body>
     </html>
   )

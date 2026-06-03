@@ -7,16 +7,19 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import { getCartCount } from "@/lib/cart"
+import { getCategories, type Category } from "@/lib/data"
 
 export default function Header() {
   const [cartCount, setCartCount] = useState(0)
   const [showSearch, setShowSearch] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [categories, setCategories] = useState<Category[]>([])
   const router = useRouter()
 
   useEffect(() => {
     setCartCount(getCartCount())
+    getCategories().then(setCategories)
     const handleStorage = () => setCartCount(getCartCount())
     window.addEventListener("cart-updated", handleStorage)
     window.addEventListener("storage", handleStorage)
@@ -36,9 +39,9 @@ export default function Header() {
   }
 
   const navLinks = [
-    { href: "/", label: "হোম", labelEn: "Home" },
-    { href: "/category/all", label: "পণ্য", labelEn: "Products" },
-    { href: "/about", label: "আমাদের সম্পর্কে", labelEn: "About" },
+    { href: "/", label: "হোম" },
+    { href: "/category/all", label: "সকল পণ্য" },
+    { href: "/about", label: "আমাদের সম্পর্কে" },
   ]
 
   return (
@@ -62,6 +65,27 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            <div className="relative group">
+              <button className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                ক্যাটাগরি
+              </button>
+              <div className="absolute top-full left-0 mt-1 w-48 bg-card border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="p-2 space-y-1">
+                  <Link href="/category/all" className="block px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors">
+                    সকল ক্যাটাগরি
+                  </Link>
+                  {categories.map((cat) => (
+                    <Link
+                      key={cat.slug}
+                      href={`/category/${cat.slug}`}
+                      className="block px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                    >
+                      {cat.nameBn}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -106,13 +130,7 @@ export default function Header() {
         {showSearch && (
           <form onSubmit={handleSearch} className="md:hidden pb-3">
             <div className="flex gap-2">
-              <Input
-                type="search"
-                placeholder="পণ্য খুঁজুন..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                autoFocus
-              />
+              <Input type="search" placeholder="পণ্য খুঁজুন..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} autoFocus />
               <Button type="submit" size="sm">খুঁজুন</Button>
             </div>
           </form>
@@ -128,6 +146,17 @@ export default function Header() {
                 className="block py-2 text-sm font-medium text-muted-foreground hover:text-primary"
               >
                 {link.label}
+              </Link>
+            ))}
+            <p className="text-xs text-muted-foreground pt-3 pb-1 font-medium">ক্যাটাগরি</p>
+            {categories.map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/category/${cat.slug}`}
+                onClick={() => setShowMobileMenu(false)}
+                className="block py-1.5 text-sm text-muted-foreground hover:text-primary pl-3"
+              >
+                {cat.nameBn}
               </Link>
             ))}
           </nav>

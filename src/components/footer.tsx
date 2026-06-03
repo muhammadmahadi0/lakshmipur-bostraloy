@@ -1,11 +1,11 @@
 import Link from "next/link"
-import { Store, Phone, MapPin, Clock } from "lucide-react"
+import { Store, Phone, MapPin, Clock, Shield } from "lucide-react"
 
 export default function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground mt-16">
       <div className="container mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Store className="h-6 w-6" />
@@ -31,34 +31,46 @@ export default function Footer() {
           </div>
 
           <div>
+            <h3 className="text-lg font-semibold mb-4">ক্যাটাগরি</h3>
+            <ul className="space-y-2">
+              <li><Link href="/category/lungi" className="text-sm text-primary-foreground/80 hover:text-secondary transition-colors">লুঙ্গি</Link></li>
+              <li><Link href="/category/panjabi" className="text-sm text-primary-foreground/80 hover:text-secondary transition-colors">পাঞ্জাবি</Link></li>
+              <li><Link href="/category/pajama" className="text-sm text-primary-foreground/80 hover:text-secondary transition-colors">পাজামা</Link></li>
+              <li><Link href="/category/fatua" className="text-sm text-primary-foreground/80 hover:text-secondary transition-colors">ফতুয়া</Link></li>
+              <li><Link href="/category/moshari" className="text-sm text-primary-foreground/80 hover:text-secondary transition-colors">মশারি</Link></li>
+            </ul>
+          </div>
+
+          <div>
             <h3 className="text-lg font-semibold mb-4">যোগাযোগ</h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                <span className="text-sm text-primary-foreground/80">
-                  লক্ষ্মীপুর সদর, লক্ষ্মীপুর
-                </span>
+                <span className="text-sm text-primary-foreground/80">লক্ষ্মীপুর সদর, লক্ষ্মীপুর</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0" />
-                <a href="tel:+8801700000000" className="text-sm text-primary-foreground/80 hover:text-secondary transition-colors">
-                  +৮৮০ ১৭০০-০০০০০০
-                </a>
+                <a href="tel:+8801700000000" className="text-sm text-primary-foreground/80 hover:text-secondary transition-colors">+৮৮০ ১৭০০-০০০০০০</a>
               </li>
               <li className="flex items-center gap-2">
                 <Clock className="h-4 w-4 shrink-0" />
-                <span className="text-sm text-primary-foreground/80">
-                  সকাল ৯টা - রাত ৯টা (শুক্রবার বন্ধ)
-                </span>
+                <span className="text-sm text-primary-foreground/80">সকাল ৯টা - রাত ৯টা (শুক্রবার বন্ধ)</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 mt-8 pt-6 text-center">
+        <div className="border-t border-primary-foreground/20 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-primary-foreground/60">
             &copy; {new Date().getFullYear()} লক্ষ্মীপুর বস্ত্রালয়। সর্বস্বত্ব সংরক্ষিত।
           </p>
+          <Link
+            href="/admin/login"
+            className="text-xs text-primary-foreground/40 hover:text-primary-foreground/70 transition-colors flex items-center gap-1"
+          >
+            <Shield className="h-3 w-3" />
+            এডমিন
+          </Link>
         </div>
       </div>
     </footer>

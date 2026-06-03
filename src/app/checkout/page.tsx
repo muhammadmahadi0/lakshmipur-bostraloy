@@ -9,22 +9,19 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import WhatsAppButton from "@/components/whatsapp-button"
 import { getCart, getCartTotal, clearCart, CartItem } from "@/lib/cart"
+import { supabase } from "@/lib/supabase"
+import { toast } from "sonner"
 
 export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    address: "",
-    note: "",
-  })
+  const [saving, setSaving] = useState(false)
+  const [formData, setFormData] = useState({ name: "", phone: "", address: "", note: "" })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    const items = getCart()
-    setCartItems(items)
+    setCartItems(getCart())
     setIsLoaded(true)
   }, [])
 
@@ -39,12 +36,36 @@ export default function CheckoutPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-    setSubmitted(true)
-    clearCart()
-    window.dispatchEvent(new Event("cart-updated"))
+
+    setSaving(true)
+    try {
+      const { error } = await (supabase().from("orders") as any).insert({
+        customer_name: formData.name,
+        customer_phone: formData.phone,
+        customer_address: formData.address,
+        note: formData.note,
+        items: cartItems,
+        total: getCartTotal(cartItems),
+        status: "pending",
+      })
+
+      if (error) {
+        toast.error("অর্ডার জমা দিতে সমস্যা হয়েছে")
+        setSaving(false)
+        return
+      }
+
+      clearCart()
+      window.dispatchEvent(new Event("cart-updated"))
+      setSubmitted(true)
+    } catch {
+      toast.error("অর্ডার জমা দিতে সমস্যা হয়েছে")
+    } finally {
+      setSaving(false)
+    }
   }
 
   const total = getCartTotal(cartItems)
@@ -60,9 +81,7 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-2xl font-bold mb-4">আপনার কার্ট খালি</h1>
         <p className="text-muted-foreground mb-6">অর্ডার করতে প্রথমে পণ্য নির্বাচন করুন</p>
-        <Button asChild>
-          <Link href="/category/all">পণ্য দেখুন</Link>
-        </Button>
+        <Button asChild><Link href="/category/all">পণ্য দেখুন</Link></Button>
       </div>
     )
   }
@@ -72,12 +91,8 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-lg mx-auto text-center">
           <CheckCircle className="h-16 w-16 mx-auto text-primary mb-4" />
-          <h1 className="text-2xl md:text-3xl font-bold text-primary mb-2">
-            অর্ডার গৃহীত হয়েছে!
-          </h1>
-          <p className="text-muted-foreground mb-6">
-            আপনার অর্ডারটি আমরা পেয়েছি। খুব শীঘ্রই আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবেন।
-          </p>
+          <h1 className="text-2xl md:text-3xl font-bold text-primary mb-2">অর্ডার গৃহীত হয়েছে!</h1>
+          <p className="text-muted-foreground mb-6">আপনার অর্ডারটি আমরা পেয়েছি। খুব শীঘ্রই আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবেন।</p>
 
           <div className="bg-muted/50 rounded-lg p-6 mb-8 text-left">
             <h3 className="font-semibold mb-3">আপনার তথ্য</h3>
@@ -119,9 +134,7 @@ export default function CheckoutPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center gap-2 mb-6">
-        <Link href="/cart" className="text-muted-foreground hover:text-primary">
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
+        <Link href="/cart" className="text-muted-foreground hover:text-primary"><ArrowLeft className="h-4 w-4" /></Link>
         <h1 className="text-2xl md:text-3xl font-bold text-primary">চেকআউট</h1>
       </div>
 
@@ -133,51 +146,28 @@ export default function CheckoutPage() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="name">নাম *</Label>
-                  <Input
-                    id="name"
-                    placeholder="আপনার নাম লিখুন"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className={errors.name ? "border-destructive" : ""}
-                  />
+                  <Input id="name" placeholder="আপনার নাম লিখুন" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className={errors.name ? "border-destructive" : ""} />
                   {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
                 </div>
                 <div>
                   <Label htmlFor="phone">ফোন নম্বর *</Label>
-                  <Input
-                    id="phone"
-                    placeholder="০১৭০০-০০০০০০"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className={errors.phone ? "border-destructive" : ""}
-                  />
+                  <Input id="phone" placeholder="০১৭০০-০০০০০০" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className={errors.phone ? "border-destructive" : ""} />
                   {errors.phone && <p className="text-destructive text-sm mt-1">{errors.phone}</p>}
                 </div>
                 <div>
                   <Label htmlFor="address">ঠিকানা *</Label>
-                  <Input
-                    id="address"
-                    placeholder="আপনার সম্পূর্ণ ঠিকানা লিখুন"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className={errors.address ? "border-destructive" : ""}
-                  />
+                  <Input id="address" placeholder="আপনার সম্পূর্ণ ঠিকানা লিখুন" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className={errors.address ? "border-destructive" : ""} />
                   {errors.address && <p className="text-destructive text-sm mt-1">{errors.address}</p>}
                 </div>
                 <div>
                   <Label htmlFor="note">নোট (ঐচ্ছিক)</Label>
-                  <Input
-                    id="note"
-                    placeholder="কোনো বিশেষ অনুরোধ থাকলে লিখুন"
-                    value={formData.note}
-                    onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-                  />
+                  <Input id="note" placeholder="কোনো বিশেষ অনুরোধ থাকলে লিখুন" value={formData.note} onChange={(e) => setFormData({ ...formData, note: e.target.value })} />
                 </div>
               </div>
             </div>
 
-            <Button type="submit" size="lg" className="w-full text-base">
-              অর্ডার নিশ্চিত করুন
+            <Button type="submit" size="lg" className="w-full text-base" disabled={saving}>
+              {saving ? "অর্ডার জমা হচ্ছে..." : "অর্ডার নিশ্চিত করুন"}
             </Button>
           </form>
         </div>

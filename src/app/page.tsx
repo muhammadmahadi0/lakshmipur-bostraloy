@@ -1,12 +1,15 @@
 import Link from "next/link"
 import HeroSection from "@/components/hero-section"
 import ProductCard from "@/components/product-card"
-import { categories, getFeaturedProducts, getBestSellerProducts } from "@/lib/data"
+import { getCategories, getFeaturedProducts, getBestSellerProducts } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 
-export default function HomePage() {
-  const featuredProducts = getFeaturedProducts()
-  const bestSellerProducts = getBestSellerProducts()
+export default async function HomePage() {
+  const [categories, featuredProducts, bestSellerProducts] = await Promise.all([
+    getCategories(),
+    getFeaturedProducts(),
+    getBestSellerProducts(),
+  ])
 
   return (
     <div>
@@ -26,7 +29,7 @@ export default function HomePage() {
               className="group relative rounded-xl overflow-hidden aspect-square bg-muted hover:shadow-lg transition-all duration-300"
             >
               <img
-                src={cat.image}
+                src={cat.image || "/placeholder.png"}
                 alt={cat.nameBn}
                 className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
                 loading="lazy"
@@ -85,9 +88,7 @@ export default function HomePage() {
 
       <section className="bg-gradient-to-r from-green-700 via-green-600 to-green-800 text-white py-12 md:py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            অর্ডার করতে চান?
-          </h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">অর্ডার করতে চান?</h2>
           <p className="text-lg text-white/80 mb-8 max-w-xl mx-auto">
             সরাসরি হোয়াটসঅ্যাপে অর্ডার করুন অথবা আমাদের শোরুম থেকে আপনার পছন্দের পণ্য কিনুন
           </p>
