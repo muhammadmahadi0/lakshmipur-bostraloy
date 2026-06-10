@@ -61,41 +61,31 @@ python app.py
 
 ---
 
-## Deploy on PythonAnywhere (Free)
+## Deploy on Alwaysdata (Free — no credit card)
 
-1. Sign up at [pythonanywhere.com](https://www.pythonanywhere.com) (no credit card)
-2. Open a **Bash** console and clone your repo:
+1. Sign up at [admin.alwaysdata.com](https://admin.alwaysdata.com) (no credit card)
+2. Go to **Web** → **Sites** → **Add a site**
+3. Fill in:
+   - **Type**: `Python / WSGI`
+   - **Address**: choose a subdomain (e.g. `bostraloy.alwaysdata.net`)
+   - **Path**: `/`
+   - **Working directory**: `/home/YOUR_USERNAME/lakshmipur-bostraloy`
+   - **Command**: `gunicorn -w 4 wsgi:app`
+4. Go to **Remote access** → **SSH** → enable it, set a password
+5. SSH in and run:
    ```bash
    git clone https://github.com/muhammadmahadi0/lakshmipur-bostraloy.git
-   ```
-3. Create a virtualenv and install deps:
-   ```bash
    cd lakshmipur-bostraloy
    python -m venv venv
    source venv/bin/activate
    pip install -r requirements.txt
-   ```
-4. Initialize the database:
-   ```bash
    python init_db.py
    ```
-5. Go to the **Web** tab → **Add a new web app** → **Manual configuration** → **Python 3.12**
-6. Set:
-   - **Source code**: `/home/YOUR_USERNAME/lakshmipur-bostraloy`
-   - **Working directory**: same
-   - **Virtualenv**: `/home/YOUR_USERNAME/lakshmipur-bostraloy/venv`
-   - **WSGI file**: Click the link and replace its contents with:
-     ```python
-     import sys
-     sys.path.insert(0, '/home/YOUR_USERNAME/lakshmipur-bostraloy')
-     from wsgi import app
-     ```
-7. Go to the **Web** tab → **Environment variables** and add:
+6. Go to **Web** → **Sites** → edit your site → **Environment variables**:
    - `SECRET_KEY` → a long random string
    - `ADMIN_PASSWORD` → a secure password
-8. Go back to **Web** tab and click **Reload**
-9. Your site is live at `YOUR_USERNAME.pythonanywhere.com`
-10. Visit `/admin/` and login with `admin@lakshmipurbostraloy.com` and your password
+7. Save and restart the site
+8. Done — visit `bostraloy.alwaysdata.net/admin/` and login with `admin@lakshmipurbostraloy.com`
 
 ---
 
@@ -108,7 +98,7 @@ bostraloy/
 ├── admin.py                # Flask-Admin configuration
 ├── config.py               # Configuration (env-aware)
 ├── init_db.py              # Database seeder
-├── wsgi.py                 # PythonAnywhere WSGI entry point
+├── wsgi.py                 # WSGI entry point
 ├── requirements.txt        # Python dependencies
 ├── instance/
 │   └── bostraloy.db        # SQLite database (auto-created)
