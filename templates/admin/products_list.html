@@ -1,0 +1,88 @@
+{% extends "admin/_base.html" %}
+{% block title %}Products{% endblock %}
+{% block breadcrumb %}<a href="/admin/">ড্যাশবোর্ড</a> / পণ্য{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold text-gray-900 bangla">📦 পণ্য সমূহ ({{ products.total }})</h1>
+  <a href="/admin/products/new/" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg font-medium">
+    + নতুন পণ্য
+  </a>
+</div>
+
+<form method="get" class="mb-4 flex gap-2">
+  <input type="text" name="q" value="{{ search }}" placeholder="পণ্য খুঁজুন..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg">
+  <select name="category" class="px-3 py-2 border border-gray-300 rounded-lg">
+    <option value="">সব ক্যাটাগরি</option>
+    {% for c in categories %}
+      <option value="{{ c.id }}" {% if current_category == c.id %}selected{% endif %}>{{ c.name_bn }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-lg">ফিল্টার</button>
+</form>
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+  <table class="w-full">
+    <thead class="bg-gray-50 text-left text-xs text-gray-500 uppercase">
+      <tr>
+        <th class="px-4 py-3">Image</th>
+        <th class="px-4 py-3">Name</th>
+        <th class="px-4 py-3">Category</th>
+        <th class="px-4 py-3">Price</th>
+        <th class="px-4 py-3">Stock</th>
+        <th class="px-4 py-3">Status</th>
+        <th class="px-4 py-3">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for p in products.items %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-3">
+          {% set imgs = p.get_images() %}
+          {% if imgs and imgs[0] %}
+            <img src="{{ imgs[0] }}" class="w-12 h-12 object-cover rounded" alt="">
+          {% else %}
+            <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">No img</div>
+          {% endif %}
+        </td>
+        <td class="px-4 py-3">
+          <div class="font-medium text-sm">{{ p.name_bn or p.name }}</div>
+          <div class="text-xs text-gray-500">{{ p.slug }}</div>
+        </td>
+        <td class="px-4 py-3 text-sm">{{ p.category.name_bn if p.category else '-' }}</td>
+        <td class="px-4 py-3 text-sm font-medium">৳{{ "{:,.0f}".format(p.price) }}</td>
+        <td class="px-4 py-3 text-sm">{{ p.stock_count }}</td>
+        <td class="px-4 py-3 text-xs">
+          {% if p.is_active %}<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded">Active</span>
+          {% else %}<span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded">Inactive</span>{% endif %}
+          {% if p.is_featured %}<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded ml-1">Featured</span>{% endif %}
+        </td>
+        <td class="px-4 py-3 text-sm">
+          <a href="/admin/products/{{ p.id }}/variants/" class="text-blue-600 hover:underline text-xs">Variants</a> |
+          <a href="/admin/products/{{ p.id }}/" class="text-emerald-600 hover:underline text-xs">Edit</a> |
+          <form method="post" action="/admin/products/{{ p.id }}/delete/" class="inline" onsubmit="return confirm('মুছে ফেলতে চান?');">
+            <button class="text-red-600 hover:underline text-xs">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="px-4 py-12 text-center text-gray-500">কোনো পণ্য পাওয়া যায়নি</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if products.pages > 1 %}
+<div class="mt-4 flex justify-center gap-1">
+  {% for page in products.iter_pages() %}
+    {% if page %}
+      <a href="?page={{ page }}{% if search %}&q={{ search }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}"
+         class="px-3 py-1 rounded {% if page == products.page %}bg-emerald-700 text-white{% else %}bg-white border{% endif %}">
+        {{ page }}
+      </a>
+    {% else %}
+      <span class="px-3 py-1 text-gray-400">…</span>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

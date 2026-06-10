@@ -1,0 +1,19 @@
+{% extends "admin/_base.html" %}
+{% block title %}Settings{% endblock %}
+{% block breadcrumb %}<a href="/admin/">ড্যাশবোর্ড</a> / সেটিংস{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-900 bangla mb-6">⚙️ সেটিংস</h1>
+<form method="post" class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 max-w-2xl space-y-3">
+  <p class="text-sm text-gray-600 bangla">সাইটের বিভিন্ন সেটিংস এখানে কনফিগার করুন।</p>
+  {% for s in settings %}
+  <div>
+    <label class="block text-sm font-medium mb-1 font-mono text-xs">{{ s.key }}</label>
+    {% if s.description %}<p class="text-xs text-gray-500 mb-1">{{ s.description }}</p>{% endif %}
+    <input type="text" name="{{ s.key }}" value="{{ s.value }}" class="w-full px-3 py-2 border rounded-lg">
+  </div>
+  {% endfor %}
+  <div class="pt-3 border-t">
+    <button class="bg-emerald-700 text-white px-6 py-2 rounded-lg">সেভ করুন</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ _('Lakshmipur Bostraloy') }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ _('Traditional Bangladeshi clothing — Lungi, Panjabi, Pajama, Fatua, Moshari, Towel, Blouse, Kids Saree') }}{% endblock %}">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50: '#f0fdf4', 500: '#16a34a', 600: '#15803d', 700: '#166534' },
+            accent: { 500: '#dc2626', 600: '#b91c1c' }
+          },
+          fontFamily: {
+            bangla: ['"Hind Siliguri"', '"Noto Sans Bengali"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Hind Siliguri for Bangla, Inter for English -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- HTMX for dynamic interactions -->
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body { font-family: 'Hind Siliguri', 'Inter', system-ui, sans-serif; }
+    .bn { font-family: 'Hind Siliguri', sans-serif; }
+    .en { font-family: 'Inter', sans-serif; }
+    [lang="en"] body, [lang="en"] { font-family: 'Inter', system-ui, sans-serif; }
+    [lang="bn"] body, [lang="bn"] { font-family: 'Hind Siliguri', sans-serif; }
+
+    .hero-gradient {
+      background: linear-gradient(135deg, #166534 0%, #15803d 50%, #16a34a 100%);
+    }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15); }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .htmx-indicator { opacity: 0; transition: opacity 0.2s; }
+    .htmx-request .htmx-indicator { opacity: 1; }
+    .htmx-request.htmx-indicator { opacity: 1; }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
+    <!-- Top bar -->
+    <div class="bg-primary-700 text-white text-xs">
+      <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+          <span><i class="fas fa-phone-alt"></i> {{ SHOP_PHONE }}</span>
+          <span class="hidden sm:inline"><i class="fas fa-map-marker-alt"></i> {{ SHOP_ADDRESS_BN if current_lang == 'bn' else SHOP_ADDRESS_EN }}</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="/set-language/bn" class="hover:underline {{ 'font-bold' if current_lang == 'bn' else 'opacity-70' }}">বাংলা</a>
+          <span>|</span>
+          <a href="/set-language/en" class="hover:underline {{ 'font-bold' if current_lang == 'en' else 'opacity-70' }}">English</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main nav -->
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2">
+        <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">ল</div>
+        <div>
+          <div class="font-bold text-lg leading-tight">{{ SHOP_NAME_BN if current_lang == 'bn' else SHOP_NAME_EN }}</div>
+          <div class="text-xs text-gray-500">{{ _('Trusted Since 1985') }}</div>
+        </div>
+      </a>
+
+      <!-- Search -->
+      <form action="/products" method="get" class="hidden md:flex flex-1 max-w-xl relative">
+        <input type="text" name="q" placeholder="{{ _('Search products...') }}"
+               hx-get="/api/search" hx-trigger="keyup changed delay:300ms" hx-target="#search-results"
+               class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary-600">
+          <i class="fas fa-search"></i>
+        </button>
+        <div id="search-results" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-lg shadow-lg z-50 max-h-96 overflow-y-auto hidden"
+             hx-on::after-request="this.classList.remove('hidden')"></div>
+      </form>
+
+      <!-- Right actions -->
+      <div class="flex items-center gap-4">
+        <a href="/cart" class="relative text-gray-700 hover:text-primary-600">
+          <i class="fas fa-shopping-cart text-xl"></i>
+          {% if cart_count > 0 %}
+          <span class="absolute -top-2 -right-2 bg-accent-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">{{ cart_count }}</span>
+          {% endif %}
+        </a>
+        <a href="/admin/" class="text-gray-700 hover:text-primary-600 hidden sm:inline-block" title="{{ _('Admin') }}">
+          <i class="fas fa-user-shield text-xl"></i>
+        </a>
+        <a href="https://wa.me/{{ SHOP_WHATSAPP }}" target="_blank"
+           class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-semibold flex items-center gap-1">
+          <i class="fab fa-whatsapp text-lg"></i>
+          <span class="hidden lg:inline">{{ _('Order') }}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Category nav -->
+    <nav class="border-t border-gray-200 bg-white">
+      <div class="container mx-auto px-4 overflow-x-auto">
+        <div class="flex items-center gap-1 py-2 text-sm">
+          <a href="/" class="px-3 py-2 hover:bg-primary-50 hover:text-primary-700 rounded font-medium whitespace-nowrap">
+            <i class="fas fa-home"></i> {{ _('Home') }}
+          </a>
+          <a href="/products" class="px-3 py-2 hover:bg-primary-50 hover:text-primary-700 rounded font-medium whitespace-nowrap">
+            {{ _('All Products') }}
+          </a>
+          {% for cat in nav_categories[:8] %}
+          <a href="/category/{{ cat.slug }}" class="px-3 py-2 hover:bg-primary-50 hover:text-primary-700 rounded font-medium whitespace-nowrap">
+            {% if cat.icon %}<span class="mr-1">{{ cat.icon }}</span>{% endif %}
+            {{ cat.name_bn if current_lang == 'bn' else cat.name }}
+          </a>
+          {% endfor %}
+          <a href="/about" class="px-3 py-2 hover:bg-primary-50 hover:text-primary-700 rounded font-medium whitespace-nowrap">
+            {{ _('About') }}
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mx-auto px-4 mt-4">
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }} bg-{% if category == 'error' %}red{% elif category == 'warning' %}yellow{% else %}green{% endif %}-100 border-l-4 border-{% if category == 'error' %}red{% elif category == 'warning' %}yellow{% else %}green{% endif %}-500 text-{% if category == 'error' %}red{% elif category == 'warning' %}yellow{% else %}green{% endif %}-700 p-3 rounded mb-2 fade-in">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Main content -->
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 mt-12">
+    <div class="container mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">ল</div>
+          <div class="font-bold text-white">{{ SHOP_NAME_BN if current_lang == 'bn' else SHOP_NAME_EN }}</div>
+        </div>
+        <p class="text-sm">{{ _('Quality traditional Bangladeshi clothing since 1985.') }}</p>
+      </div>
+      <div>
+        <h4 class="font-bold text-white mb-3">{{ _('Quick Links') }}</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="/" class="hover:text-white">{{ _('Home') }}</a></li>
+          <li><a href="/products" class="hover:text-white">{{ _('All Products') }}</a></li>
+          <li><a href="/about" class="hover:text-white">{{ _('About Us') }}</a></li>
+          <li><a href="/admin/" class="hover:text-white">{{ _('Admin Panel') }}</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-bold text-white mb-3">{{ _('Categories') }}</h4>
+        <ul class="space-y-2 text-sm">
+          {% for cat in Category.query.filter_by(is_active=True).order_by(Category.sort_order).limit(6).all() %}
+          <li><a href="/category/{{ cat.slug }}" class="hover:text-white">{{ cat.name_bn if current_lang == 'bn' else cat.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-bold text-white mb-3">{{ _('Contact') }}</h4>
+        <ul class="space-y-2 text-sm">
+          <li><i class="fas fa-phone"></i> {{ SHOP_PHONE }}</li>
+          <li><i class="fab fa-whatsapp"></i> {{ SHOP_WHATSAPP }}</li>
+          <li><i class="fas fa-map-marker-alt"></i> {{ SHOP_ADDRESS_BN if current_lang == 'bn' else SHOP_ADDRESS_EN }}</li>
+        </ul>
+        <div class="flex gap-3 mt-4">
+          <a href="#" class="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary-600"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary-600"><i class="fab fa-instagram"></i></a>
+          <a href="https://wa.me/{{ SHOP_WHATSAPP }}" class="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center hover:bg-green-600"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 py-4 text-center text-sm">
+      © 2026 {{ SHOP_NAME_EN }}. {{ _('All rights reserved.') }}
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp button -->
+  <a href="https://wa.me/{{ SHOP_WHATSAPP }}?text={{ _('Hello, I want to know about your products') | urlencode }}"
+     target="_blank"
+     class="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center shadow-lg z-50 hover:scale-110 transition-transform"
+     title="WhatsApp">
+    <i class="fab fa-whatsapp text-2xl"></i>
+  </a>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,40 @@
+{% extends "admin/_base.html" %}
+{% block title %}Coupons{% endblock %}
+{% block breadcrumb %}<a href="/admin/">ড্যাশবোর্ড</a> / কুপন{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold text-gray-900 bangla">🎟️ কুপন ({{ coupons|length }})</h1>
+  <a href="/admin/coupons/new/" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg">+ নতুন কুপন</a>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+  <table class="w-full">
+    <thead class="bg-gray-50 text-left text-xs text-gray-500 uppercase">
+      <tr><th class="px-4 py-3">Code</th><th class="px-4 py-3 bangla">ছাড়</th><th class="px-4 py-3">Min Order</th><th class="px-4 py-3">Used/Max</th><th class="px-4 py-3">Expires</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Actions</th></tr>
+    </thead>
+    <tbody class="divide-y">
+      {% for c in coupons %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-3 font-mono font-bold">{{ c.code }}</td>
+        <td class="px-4 py-3 text-sm">
+          {% if c.discount_type == 'percent' %}{{ c.discount_value }}%
+          {% else %}৳{{ c.discount_value }}{% endif %}
+        </td>
+        <td class="px-4 py-3 text-sm">৳{{ "{:,.0f}".format(c.min_order) }}</td>
+        <td class="px-4 py-3 text-sm">{{ c.used_count }}/{{ c.max_uses or '∞' }}</td>
+        <td class="px-4 py-3 text-xs">{{ c.expires_at.strftime('%Y-%m-%d') if c.expires_at else 'Never' }}</td>
+        <td class="px-4 py-3 text-xs">{% if c.is_active %}<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded">Active</span>{% else %}<span class="bg-gray-100 px-2 py-0.5 rounded">Inactive</span>{% endif %}</td>
+        <td class="px-4 py-3 text-sm">
+          <a href="/admin/coupons/{{ c.id }}/" class="text-emerald-600 hover:underline text-xs">Edit</a> |
+          <form method="post" action="/admin/coupons/{{ c.id }}/delete/" class="inline" onsubmit="return confirm('মুছবেন?');">
+            <button class="text-red-600 hover:underline text-xs">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="px-4 py-12 text-center text-gray-500">কোনো কুপন নেই</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

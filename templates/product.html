@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name_bn or product.name }} - {{ SHOP_NAME_BN }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-gray-500 mb-4 bangla">
+    <a href="/" class="hover:text-emerald-700">হোম</a> /
+    <a href="/products" class="hover:text-emerald-700">পণ্য</a> /
+    {% if product.category %}
+    <a href="/products?category={{ product.category.id }}" class="hover:text-emerald-700">{{ product.category.name_bn }}</a> /
+    {% endif %}
+    <span class="text-gray-700">{{ product.name_bn or product.name }}</span>
+  </nav>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <!-- Image gallery -->
+    <div>
+      {% set imgs = product.get_images() %}
+      {% if imgs and imgs[0] %}
+        <img src="{{ imgs[0] }}" alt="{{ product.name }}" class="w-full rounded-lg border border-gray-200">
+        {% if imgs|length > 1 %}
+        <div class="grid grid-cols-4 gap-2 mt-2">
+          {% for img in imgs[1:5] %}
+          <img src="{{ img }}" class="w-full h-20 object-cover rounded border border-gray-200 cursor-pointer hover:border-emerald-500">
+          {% endfor %}
+        </div>
+        {% endif %}
+      {% else %}
+        <div class="w-full aspect-square bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-lg flex items-center justify-center text-6xl">
+          {{ product.category.icon if product.category else '📦' }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Info -->
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 bangla mb-1">{{ product.name_bn }}</h1>
+      {% if product.name_bn != product.name %}
+      <p class="text-sm text-gray-500 mb-2">{{ product.name }}</p>
+      {% endif %}
+
+      <div class="flex items-baseline gap-3 mb-4">
+        <span class="text-3xl font-bold text-emerald-700">৳{{ "{:,.0f}".format(product.price) }}</span>
+        {% if product.has_discount %}
+        <span class="text-lg line-through text-gray-400">৳{{ "{:,.0f}".format(product.original_price or 0) }}</span>
+        <span class="bg-red-100 text-red-700 text-sm font-bold px-2 py-1 rounded">-{{ product.discount_percent }}%</span>
+        {% endif %}
+      </div>
+
+      {% if product.description_bn %}
+      <p class="text-gray-700 mb-3 bangla">{{ product.description_bn }}</p>
+      {% endif %}
+      {% if product.description and product.description != product.description_bn %}
+      <p class="text-gray-600 text-sm mb-3">{{ product.description }}</p>
+      {% endif %}
+
+      <div class="mb-4 text-sm space-y-1">
+        <div><span class="text-gray-500 bangla">স্টক:</span>
+          {% if product.stock_count > 0 %}
+            <span class="text-emerald-700 font-medium">✓ {{ product.stock_count }} টি আছে</span>
+          {% else %}
+            <span class="text-red-600 font-medium">স্টক আউট</span>
+          {% endif %}
+        </div>
+        <div><span class="text-gray-500 bangla">ক্যাটাগরি:</span> {{ product.category.name_bn if product.category else '-' }}</div>
+        <div><span class="text-gray-500 bangla">ভিউ:</span> {{ product.view_count }}</div>
+      </div>
+
+      {% if product.variants %}
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1 bangla">ভ্যারিয়েন্ট নির্বাচন করুন</label>
+        <select name="variant_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          {% for v in product.variants %}
+          <option value="{{ v.id }}" {% if v.stock_count == 0 %}disabled{% endif %}>
+            {{ v.size }}{% if v.color %} - {{ v.color }}{% endif %}
+            {% if v.stock_count == 0 %}(স্টক আউট){% endif %}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      <form method="post" action="/cart/add" class="flex items-center gap-3 mb-4">
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        {% if product.variants %}
+        <input type="hidden" name="variant_id" value="{{ product.variants[0].id }}">
+        {% endif %}
+        <div class="flex items-center border border-gray-300 rounded-lg">
+          <button type="button" onclick="document.getElementById('qty').value=Math.max(1,parseInt(document.getElementById('qty').value)-1)" class="px-3 py-2 hover:bg-gray-100">−</button>
+          <input type="number" id="qty" name="quantity" value="1" min="1" max="{{ product.stock_count }}" class="w-16 text-center border-x border-gray-300 py-2">
+          <button type="button" onclick="document.getElementById('qty').value=Math.min({{ product.stock_count }},parseInt(document.getElementById('qty').value)+1)" class="px-3 py-2 hover:bg-gray-100">+</button>
+        </div>
+        <button type="submit" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-3 rounded-lg font-medium">
+          🛒 কার্টে যোগ করুন
+        </button>
+      </form>
+
+      <div class="flex gap-2 text-sm">
+        <a href="https://wa.me/{{ SHOP_WHATSAPP }}?text={{ ('আমি ' + (product.name_bn or product.name) + ' অর্ডার করতে চাই')|urlencode }}" target="_blank" class="flex-1 bg-green-600 hover:bg-green-700 text-white text-center py-2 rounded-lg">
+          💬 WhatsApp
+        </a>
+        <a href="tel:{{ SHOP_PHONE }}" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center py-2 rounded-lg">
+          📞 কল
+        </a>
+      </div>
+
+      <!-- Trust badges -->
+      <div class="mt-6 grid grid-cols-3 gap-2 text-center text-xs">
+        <div class="bg-gray-50 p-2 rounded">
+          <div class="text-lg">🚚</div>
+          <div class="text-gray-600 bangla">ফাস্ট ডেলিভারি</div>
+        </div>
+        <div class="bg-gray-50 p-2 rounded">
+          <div class="text-lg">↩️</div>
+          <div class="text-gray-600 bangla">৭ দিন রিটার্ন</div>
+        </div>
+        <div class="bg-gray-50 p-2 rounded">
+          <div class="text-lg">💯</div>
+          <div class="text-gray-600 bangla">অরিজিনাল</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related products -->
+  {% if related %}
+  <section class="mt-8">
+    <h2 class="text-xl font-bold text-gray-900 bangla mb-4">সম্পর্কিত পণ্য</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      {% for p in related %}
+      <a href="/product/{{ p.slug }}" class="bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition p-3">
+        {% set r_imgs = p.get_images() %}
+        {% if r_imgs and r_imgs[0] %}
+          <img src="{{ r_imgs[0] }}" class="w-full h-32 object-cover rounded mb-2" alt="">
+        {% else %}
+          <div class="w-full h-32 bg-gray-100 rounded mb-2 flex items-center justify-center text-3xl">{{ p.category.icon if p.category else '📦' }}</div>
+        {% endif %}
+        <div class="text-sm font-medium bangla">{{ p.name_bn or p.name }}</div>
+        <div class="text-emerald-700 font-bold mt-1">৳{{ "{:,.0f}".format(p.price) }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

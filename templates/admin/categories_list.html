@@ -1,0 +1,49 @@
+{% extends "admin/_base.html" %}
+{% block title %}Categories{% endblock %}
+{% block breadcrumb %}<a href="/admin/">ড্যাশবোর্ড</a> / ক্যাটাগরি{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold text-gray-900 bangla">🏷️ ক্যাটাগরি সমূহ ({{ categories|length }})</h1>
+  <a href="/admin/categories/new/" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg font-medium">+ নতুন ক্যাটাগরি</a>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+  <table class="w-full">
+    <thead class="bg-gray-50 text-left text-xs text-gray-500 uppercase">
+      <tr>
+        <th class="px-4 py-3">Icon</th>
+        <th class="px-4 py-3 bangla">নাম (EN/BN)</th>
+        <th class="px-4 py-3">Slug</th>
+        <th class="px-4 py-3">Products</th>
+        <th class="px-4 py-3">Order</th>
+        <th class="px-4 py-3">Status</th>
+        <th class="px-4 py-3">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for c in categories %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-3 text-2xl">{{ c.icon or '📦' }}</td>
+        <td class="px-4 py-3">
+          <div class="font-medium text-sm">{{ c.name }}</div>
+          <div class="text-xs text-gray-500 bangla">{{ c.name_bn }}</div>
+        </td>
+        <td class="px-4 py-3 text-xs text-gray-500 font-mono">{{ c.slug }}</td>
+        <td class="px-4 py-3 text-sm">{{ c.products.count() }}</td>
+        <td class="px-4 py-3 text-sm">{{ c.sort_order }}</td>
+        <td class="px-4 py-3 text-xs">
+          {% if c.is_active %}<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded">Active</span>
+          {% else %}<span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded">Inactive</span>{% endif %}
+        </td>
+        <td class="px-4 py-3 text-sm">
+          <a href="/admin/categories/{{ c.id }}/" class="text-emerald-600 hover:underline text-xs">Edit</a> |
+          <form method="post" action="/admin/categories/{{ c.id }}/delete/" class="inline" onsubmit="return confirm('মুছবেন?');">
+            <button class="text-red-600 hover:underline text-xs">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

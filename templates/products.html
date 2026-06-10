@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{% if search %}{{ _('Search') }}: {{ search }} | {% endif %}{{ _('All Products') }} - {{ SHOP_NAME_BN }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <div class="flex flex-col md:flex-row gap-6">
+    <!-- Sidebar -->
+    <aside class="md:w-64 flex-shrink-0">
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 sticky top-32">
+        <h3 class="font-bold mb-3 text-gray-900">{{ _('Categories') }}</h3>
+        <ul class="space-y-1 text-sm">
+          <li>
+            <a href="/products{% if search %}?q={{ search }}{% endif %}"
+               class="block px-3 py-2 rounded {{ 'bg-primary-50 text-primary-700 font-semibold' if not current_category else 'hover:bg-gray-50' }}">
+              {{ _('All Products') }}
+            </a>
+          </li>
+          {% for cat in categories %}
+          <li>
+            <a href="/products?category={{ cat.slug }}{% if search %}&q={{ search }}{% endif %}"
+               class="block px-3 py-2 rounded {{ 'bg-primary-50 text-primary-700 font-semibold' if current_category == cat.slug else 'hover:bg-gray-50' }}">
+              {% if cat.icon %}<span class="mr-1">{{ cat.icon }}</span>{% endif %}
+              {{ cat.name_bn if current_lang == 'bn' else cat.name }}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="flex-1">
+      <div class="flex flex-wrap items-center justify-between mb-6 gap-3">
+        <h1 class="text-2xl font-bold">
+          {% if current_category %}
+            {% for c in categories if c.slug == current_category %}{{ c.name_bn if current_lang == 'bn' else c.name }}{% endfor %}
+          {% elif search %}
+            {{ _('Search results for') }}: <span class="text-primary-600">"{{ search }}"</span>
+          {% else %}
+            {{ _('All Products') }}
+          {% endif %}
+        </h1>
+        <form method="get" class="flex items-center gap-2">
+          {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
+          {% if search %}<input type="hidden" name="q" value="{{ search }}">{% endif %}
+          <select name="sort" onchange="this.form.submit()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+            <option value="newest" {{ 'selected' if sort == 'newest' }}>{{ _('Newest') }}</option>
+            <option value="price-low" {{ 'selected' if sort == 'price-low' }}>{{ _('Price: Low to High') }}</option>
+            <option value="price-high" {{ 'selected' if sort == 'price-high' }}>{{ _('Price: High to Low') }}</option>
+            <option value="popular" {{ 'selected' if sort == 'popular' }}>{{ _('Most Popular') }}</option>
+          </select>
+        </form>
+      </div>
+
+      {% if products %}
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        {% for product in products %}
+        {% include "partials/product_card.html" %}
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="bg-white rounded-xl p-12 text-center shadow-sm">
+        <div class="text-6xl mb-4">🔍</div>
+        <h3 class="text-xl font-bold mb-2">{{ _('No products found') }}</h3>
+        <p class="text-gray-500">{{ _('Try a different search or category') }}</p>
+        <a href="/products" class="inline-block mt-4 bg-primary-600 text-white px-5 py-2 rounded-lg hover:bg-primary-700">
+          {{ _('View All Products') }}
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

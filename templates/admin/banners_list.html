@@ -1,0 +1,39 @@
+{% extends "admin/_base.html" %}
+{% block title %}Banners{% endblock %}
+{% block breadcrumb %}<a href="/admin/">ড্যাশবোর্ড</a> / ব্যানার{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold text-gray-900 bangla">🖼️ ব্যানার ({{ banners|length }})</h1>
+  <a href="/admin/banners/new/" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg">+ নতুন ব্যানার</a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {% for b in banners %}
+  <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+    {% if b.image_url %}
+      <img src="{{ b.image_url }}" alt="" class="w-full h-40 object-cover">
+    {% else %}
+      <div class="w-full h-40 bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center text-white text-2xl">লক্ষ্মীপুর</div>
+    {% endif %}
+    <div class="p-4">
+      <h3 class="font-bold">{{ b.title or b.title_bn }}</h3>
+      <p class="text-xs text-gray-500 bangla">{{ b.subtitle_bn or b.subtitle }}</p>
+      <div class="mt-2 text-xs flex gap-2 flex-wrap">
+        <span class="px-2 py-0.5 rounded {% if b.is_active %}bg-green-100 text-green-700{% else %}bg-gray-100{% endif %}">
+          {{ 'Active' if b.is_active else 'Inactive' }}
+        </span>
+        <span class="px-2 py-0.5 rounded bg-gray-100">Order: {{ b.sort_order }}</span>
+      </div>
+      <div class="mt-3 flex gap-2 text-sm">
+        <a href="/admin/banners/{{ b.id }}/" class="text-emerald-600 hover:underline">Edit</a>
+        <form method="post" action="/admin/banners/{{ b.id }}/delete/" class="inline" onsubmit="return confirm('মুছবেন?');">
+          <button class="text-red-600 hover:underline">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-span-3 text-center text-gray-500 py-12">কোনো ব্যানার নেই</div>
+  {% endfor %}
+</div>
+{% endblock %}

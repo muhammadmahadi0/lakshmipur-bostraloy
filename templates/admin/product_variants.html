@@ -1,0 +1,48 @@
+{% extends "admin/_base.html" %}
+{% block title %}Variants - {{ product.name }}{% endblock %}
+{% block breadcrumb %}<a href="/admin/">ড্যাশবোর্ড</a> / <a href="/admin/products/">পণ্য</a> / <a href="/admin/products/{{ product.id }}/">{{ product.name_bn }}</a> / Variants{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-900 bangla mb-2">ভ্যারিয়েন্ট: {{ product.name_bn }}</h1>
+<p class="text-sm text-gray-500 mb-6">{{ variants|length }} variant(s)</p>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+    <h2 class="font-bold mb-3 bangla">+ নতুন ভ্যারিয়েন্ট</h2>
+    <form method="post" class="space-y-3">
+      <div class="grid grid-cols-2 gap-2">
+        <input type="text" name="size" placeholder="Size (e.g. M, L, XL)" class="px-3 py-2 border rounded-lg">
+        <input type="text" name="color" placeholder="Color (e.g. Red, Blue)" class="px-3 py-2 border rounded-lg">
+      </div>
+      <input type="text" name="sku" placeholder="SKU (optional)" class="w-full px-3 py-2 border rounded-lg">
+      <div class="grid grid-cols-2 gap-2">
+        <input type="number" name="price_override" step="0.01" placeholder="Price override (0=use product)" class="px-3 py-2 border rounded-lg">
+        <input type="number" name="stock_count" placeholder="Stock" value="0" class="px-3 py-2 border rounded-lg">
+      </div>
+      <button class="w-full bg-emerald-700 text-white py-2 rounded-lg">+ যোগ করুন</button>
+    </form>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+    <h2 class="font-bold mb-3 bangla">বিদ্যমান ভ্যারিয়েন্ট</h2>
+    {% if variants %}
+      <div class="space-y-2">
+        {% for v in variants %}
+          <div class="flex items-center justify-between p-2 border border-gray-100 rounded">
+            <div class="text-sm">
+              <span class="font-medium">{{ v.size }}{% if v.color %} / {{ v.color }}{% endif %}</span>
+              <span class="text-gray-500 text-xs ml-2">SKU: {{ v.sku or '-' }}</span>
+              <span class="text-gray-500 text-xs ml-2">Stock: {{ v.stock_count }}</span>
+              {% if v.price_override > 0 %}<span class="text-gray-500 text-xs ml-2">৳{{ "{:,.0f}".format(v.price_override) }}</span>{% endif %}
+            </div>
+            <form method="post" action="/admin/variants/{{ v.id }}/delete/" onsubmit="return confirm('মুছবেন?');" class="inline">
+              <button class="text-red-600 hover:underline text-xs">Delete</button>
+            </form>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-gray-500 text-sm">কোনো variant নেই</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

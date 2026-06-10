@@ -1,0 +1,75 @@
+{% extends "admin/_base.html" %}
+{% block title %}Order {{ order.order_number }}{% endblock %}
+{% block breadcrumb %}<a href="/admin/">ড্যাশবোর্ড</a> / <a href="/admin/orders/">অর্ডার</a> / {{ order.order_number }}{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-900 bangla mb-2">📋 অর্ডার {{ order.order_number }}</h1>
+<p class="text-sm text-gray-500 mb-6">{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2 space-y-4">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+      <h2 class="font-bold mb-3 bangla">📦 পণ্য সমূহ</h2>
+      {% set items = order.get_items() %}
+      {% if items %}
+        {% for item in items %}
+          <div class="flex justify-between py-2 border-b border-gray-100 last:border-0">
+            <div>
+              <div class="text-sm font-medium">{{ item.name or item.name_bn }}</div>
+              <div class="text-xs text-gray-500">Qty: {{ item.quantity }} × ৳{{ "{:,.0f}".format(item.price) }}</div>
+            </div>
+            <div class="text-sm font-bold">৳{{ "{:,.0f}".format(item.price * item.quantity) }}</div>
+          </div>
+        {% endfor %}
+        <div class="flex justify-between pt-3 mt-2 border-t-2 border-gray-200">
+          <span class="font-bold bangla">মোট</span>
+          <span class="text-xl font-bold text-emerald-700">৳{{ "{:,.0f}".format(order.total) }}</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+      <h2 class="font-bold mb-3 bangla">📍 ডেলিভারি ঠিকানা</h2>
+      <div class="text-sm space-y-1">
+        <div><strong>{{ order.customer_name }}</strong></div>
+        <div class="bangla">📞 {{ order.customer_phone }}</div>
+        {% if order.customer_email %}<div>✉️ {{ order.customer_email }}</div>{% endif %}
+        <div class="bangla mt-2 p-3 bg-gray-50 rounded">{{ order.delivery_address }}</div>
+        {% if order.city %}<div class="text-gray-600 bangla">🏙️ {{ order.city }}</div>{% endif %}
+      </div>
+    </div>
+
+    {% if order.notes %}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm">
+      <strong class="bangla">📝 নোট:</strong> {{ order.notes }}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="space-y-4">
+    <form method="post" class="bg-white rounded-lg shadow-sm border border-gray-100 p-5 space-y-3">
+      <h2 class="font-bold bangla">⚙️ আপডেট স্ট্যাটাস</h2>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+        <select name="status" class="w-full px-3 py-2 border rounded-lg">
+          {% for s in ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'] %}
+            <option value="{{ s }}" {% if order.status == s %}selected{% endif %}>{{ s|title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1 bangla">নোট</label>
+        <textarea name="notes" rows="3" class="w-full px-3 py-2 border rounded-lg">{{ order.notes or '' }}</textarea>
+      </div>
+      <button class="w-full bg-emerald-700 text-white py-2 rounded-lg">আপডেট</button>
+    </form>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5 text-sm space-y-2">
+      <h2 class="font-bold bangla">ℹ️ তথ্য</h2>
+      <div><span class="text-gray-500 bangla">পেমেন্ট:</span> <strong>{{ order.payment_method }}</strong></div>
+      <div><span class="text-gray-500 bangla">সাবটোটাল:</span> ৳{{ "{:,.0f}".format(order.subtotal) }}</div>
+      {% if order.shipping_fee %}<div><span class="text-gray-500 bangla">শিপিং:</span> ৳{{ "{:,.0f}".format(order.shipping_fee) }}</div>{% endif %}
+      {% if order.discount > 0 %}<div><span class="text-gray-500 bangla">ডিসকাউন্ট:</span> -৳{{ "{:,.0f}".format(order.discount) }}</div>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "admin/_base.html" %}
+{% block title %}Orders{% endblock %}
+{% block breadcrumb %}<a href="/admin/">ড্যাশবোর্ড</a> / অর্ডার{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-900 bangla mb-6">🛒 অর্ডার সমূহ ({{ orders.total }})</h1>
+
+<form method="get" class="mb-4 flex gap-2">
+  <select name="status" class="px-3 py-2 border rounded-lg">
+    <option value="">সব স্ট্যাটাস</option>
+    {% for s in ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'] %}
+      <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>{{ s|title }}</option>
+    {% endfor %}
+  </select>
+  <button class="bg-gray-800 text-white px-4 py-2 rounded-lg">ফিল্টার</button>
+</form>
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+  <table class="w-full">
+    <thead class="bg-gray-50 text-left text-xs text-gray-500 uppercase">
+      <tr>
+        <th class="px-4 py-3">Order #</th>
+        <th class="px-4 py-3 bangla">কাস্টমার</th>
+        <th class="px-4 py-3">Phone</th>
+        <th class="px-4 py-3">Total</th>
+        <th class="px-4 py-3">Payment</th>
+        <th class="px-4 py-3">Status</th>
+        <th class="px-4 py-3">Date</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for o in orders.items %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-3"><a href="/admin/orders/{{ o.id }}/" class="text-emerald-700 font-mono text-sm hover:underline">{{ o.order_number }}</a></td>
+        <td class="px-4 py-3 text-sm">{{ o.customer_name }}</td>
+        <td class="px-4 py-3 text-sm">{{ o.customer_phone }}</td>
+        <td class="px-4 py-3 text-sm font-bold">৳{{ "{:,.0f}".format(o.total) }}</td>
+        <td class="px-4 py-3 text-xs">{{ o.payment_method }}</td>
+        <td class="px-4 py-3 text-xs">
+          <span class="px-2 py-0.5 rounded
+            {% if o.status == 'delivered' %}bg-green-100 text-green-700
+            {% elif o.status == 'pending' %}bg-yellow-100 text-yellow-700
+            {% elif o.status == 'cancelled' %}bg-red-100 text-red-700
+            {% else %}bg-blue-100 text-blue-700{% endif %}">
+            {{ o.status }}
+          </span>
+        </td>
+        <td class="px-4 py-3 text-xs text-gray-500">{{ o.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="px-4 py-12 text-center text-gray-500">কোনো অর্ডার নেই</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if orders.pages > 1 %}
+<div class="mt-4 flex justify-center gap-1">
+  {% for page in orders.iter_pages() %}
+    {% if page %}
+      <a href="?page={{ page }}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+         class="px-3 py-1 rounded {% if page == orders.page %}bg-emerald-700 text-white{% else %}bg-white border{% endif %}">{{ page }}</a>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

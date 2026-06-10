@@ -1,0 +1,49 @@
+{% extends "admin/_base.html" %}
+{% block title %}Customer {{ customer.name }}{% endblock %}
+{% block breadcrumb %}<a href="/admin/">ড্যাশবোর্ড</a> / <a href="/admin/customers/">কাস্টমার</a> / {{ customer.name }}{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-900 bangla mb-6">👤 {{ customer.name }}</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+    <h2 class="font-bold mb-2 bangla">📞 যোগাযোগ</h2>
+    <div class="text-sm space-y-1">
+      <div>📞 {{ customer.phone }}</div>
+      {% if customer.email %}<div>✉️ {{ customer.email }}</div>{% endif %}
+      {% if customer.city %}<div class="bangla">🏙️ {{ customer.city }}</div>{% endif %}
+      {% if customer.address %}<div class="bangla p-2 bg-gray-50 rounded mt-2">{{ customer.address }}</div>{% endif %}
+    </div>
+  </div>
+  <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+    <h2 class="font-bold mb-2 bangla">📊 পরিসংখ্যান</h2>
+    <div class="text-sm space-y-1">
+      <div><span class="text-gray-500">মোট অর্ডার:</span> <strong>{{ customer.total_orders }}</strong></div>
+      <div><span class="text-gray-500 bangla">মোট খরচ:</span> <strong class="text-emerald-700">৳{{ "{:,.0f}".format(customer.total_spent) }}</strong></div>
+      <div><span class="text-gray-500 bangla">যোগদান:</span> {{ customer.created_at.strftime('%Y-%m-%d') }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+  <h2 class="font-bold mb-3 bangla">📋 অর্ডার ইতিহাস</h2>
+  {% if orders %}
+    <table class="w-full text-sm">
+      <thead class="text-left text-xs text-gray-500 uppercase">
+        <tr><th class="py-2">Order #</th><th>Date</th><th>Total</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+          <tr class="border-t border-gray-100">
+            <td class="py-2"><a href="/admin/orders/{{ o.id }}/" class="text-emerald-700 font-mono hover:underline">{{ o.order_number }}</a></td>
+            <td>{{ o.created_at.strftime('%Y-%m-%d') }}</td>
+            <td>৳{{ "{:,.0f}".format(o.total) }}</td>
+            <td><span class="px-2 py-0.5 rounded text-xs {% if o.status == 'delivered' %}bg-green-100 text-green-700{% else %}bg-gray-100{% endif %}">{{ o.status }}</span></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-gray-500 text-sm">কোনো অর্ডার নেই</p>
+  {% endif %}
+</div>
+{% endblock %}

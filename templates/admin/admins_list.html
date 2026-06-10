@@ -1,0 +1,37 @@
+{% extends "admin/_base.html" %}
+{% block title %}Admins{% endblock %}
+{% block breadcrumb %}<a href="/admin/">ড্যাশবোর্ড</a> / অ্যাডমিন ইউজার{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold text-gray-900 bangla">🔐 অ্যাডমিন ইউজার ({{ admins|length }})</h1>
+  <a href="/admin/admins/new/" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg">+ নতুন অ্যাডমিন</a>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+  <table class="w-full">
+    <thead class="bg-gray-50 text-left text-xs text-gray-500 uppercase">
+      <tr><th class="px-4 py-3 bangla">নাম</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Role</th><th class="px-4 py-3">Last Login</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Actions</th></tr>
+    </thead>
+    <tbody class="divide-y">
+      {% for a in admins %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-3 text-sm font-medium">{{ a.name }}</td>
+        <td class="px-4 py-3 text-sm">{{ a.email }}</td>
+        <td class="px-4 py-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-100 text-blue-700">{{ a.role }}</span></td>
+        <td class="px-4 py-3 text-xs text-gray-500">{{ a.last_login.strftime('%Y-%m-%d %H:%M') if a.last_login else 'Never' }}</td>
+        <td class="px-4 py-3 text-xs">{% if a.enabled %}<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded">Active</span>{% else %}<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded">Disabled</span>{% endif %}</td>
+        <td class="px-4 py-3 text-sm">
+          {% if a.id != current_user.id %}
+            <form method="post" action="/admin/admins/{{ a.id }}/delete/" class="inline" onsubmit="return confirm('মুছবেন?');">
+              <button class="text-red-600 hover:underline text-xs">Delete</button>
+            </form>
+          {% else %}
+            <span class="text-xs text-gray-400">(You)</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

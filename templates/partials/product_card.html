@@ -1,0 +1,54 @@
+<a href="/product/{{ product.slug }}" class="card-hover group block bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+  <div class="relative aspect-square bg-gray-100 overflow-hidden">
+    {% if product.get_images() %}
+    <img src="{{ product.get_images()[0] }}" alt="{{ product.name_bn }}"
+         class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
+         loading="lazy">
+    {% else %}
+    <div class="flex items-center justify-center w-full h-full text-4xl">🛍️</div>
+    {% endif %}
+
+    {% if product.has_discount() %}
+    <span class="absolute top-2 left-2 bg-accent-500 text-white text-xs font-bold px-2 py-1 rounded">
+      -{{ product.discount_percent() }}%
+    </span>
+    {% endif %}
+
+    {% if product.is_best_seller %}
+    <span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">
+      🔥 {{ _('Hot') }}
+    </span>
+    {% elif product.is_featured %}
+    <span class="absolute top-2 right-2 bg-primary-600 text-white text-xs font-bold px-2 py-1 rounded">
+      ⭐ {{ _('Best') }}
+    </span>
+    {% endif %}
+
+    {% if not product.in_stock %}
+    <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
+      <span class="bg-white text-gray-900 px-3 py-1 rounded font-bold text-sm">{{ _('Out of Stock') }}</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="p-3 md:p-4">
+    <h3 class="font-semibold text-sm md:text-base line-clamp-2 mb-1 group-hover:text-primary-600 transition">
+      {{ product.name_bn }}
+    </h3>
+    <p class="text-xs text-gray-500 line-clamp-1 mb-2">{{ product.name }}</p>
+
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-base md:text-lg font-bold text-primary-700">{{ CURRENCY }}{{ product.price|round(0)|int }}</span>
+      {% if product.has_discount() %}
+      <span class="text-xs text-gray-400 line-through">{{ CURRENCY }}{{ product.original_price|round(0)|int }}</span>
+      {% endif %}
+    </div>
+
+    <div class="flex items-center justify-between text-xs text-gray-500">
+      <span><i class="fas fa-eye"></i> {{ product.view_count }}</span>
+      {% if product.average_rating() > 0 %}
+      <span class="text-yellow-500">⭐ {{ "%.1f"|format(product.average_rating()) }}</span>
+      {% endif %}
+    </div>
+  </div>
+</a>

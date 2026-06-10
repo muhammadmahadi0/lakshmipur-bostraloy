@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Admin Login') }} - {{ SHOP_NAME_BN }}{% endblock %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center px-4">
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 w-full max-w-md">
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 bg-primary-600 rounded-xl flex items-center justify-center text-white text-3xl font-bold mx-auto mb-3">ল</div>
+      <h1 class="text-2xl font-bold">{{ _('Admin Login') }}</h1>
+      <p class="text-sm text-gray-500">{{ SHOP_NAME_BN }} {{ _('Admin Panel') }}</p>
+    </div>
+    <form method="post" class="space-y-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1">{{ _('Email') }}</label>
+        <input type="email" name="email" required autofocus class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">{{ _('Password') }}</label>
+        <input type="password" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none">
+      </div>
+      <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-semibold">
+        <i class="fas fa-sign-in-alt mr-2"></i>{{ _('Sign In') }}
+      </button>
+    </form>
+    <div class="mt-4 text-center text-xs text-gray-500">
+      <i class="fas fa-shield-alt"></i> {{ _('Secure admin access') }}
+    </div>
+  </div>
+</div>
+{% endblock %}

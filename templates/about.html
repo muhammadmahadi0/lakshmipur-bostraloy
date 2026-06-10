@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ _('About Us') }} - {{ SHOP_NAME_BN }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+    <h1 class="text-3xl font-bold text-gray-900 bangla mb-2">{{ _('About Us') }}</h1>
+    <p class="text-emerald-700 font-medium bangla text-lg mb-6">{{ SHOP_NAME_BN }}</p>
+
+    <div class="prose max-w-none text-gray-700 leading-relaxed space-y-4">
+      <p class="bangla">
+        {{ SHOP_NAME_BN }} {{ _('started its journey in 1985 in Lakshmipur, Bangladesh. For nearly four decades, we have been serving our community with high-quality traditional Bangladeshi clothing at fair prices.') }}
+      </p>
+      <p class="bangla">
+        {{ _('We specialize in Lungi, Panjabi, Pajama, Fatua, Mosquito Nets, Towels, Blouses, Petticoats, and Kids Sarees. Every product in our shop is carefully selected to ensure durability, comfort, and authentic Bangladeshi craftsmanship.') }}
+      </p>
+      <p class="bangla">
+        {{ _('Our mission is to make quality traditional clothing accessible to every family in Bangladesh, with the convenience of online ordering and reliable home delivery.') }}
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <div class="bg-emerald-50 p-4 rounded-lg text-center">
+          <div class="text-3xl font-bold text-emerald-700">40+</div>
+          <div class="text-sm text-gray-600 bangla">{{ _('Years of Trust') }}</div>
+        </div>
+        <div class="bg-emerald-50 p-4 rounded-lg text-center">
+          <div class="text-3xl font-bold text-emerald-700">10K+</div>
+          <div class="text-sm text-gray-600 bangla">{{ _('Happy Customers') }}</div>
+        </div>
+        <div class="bg-emerald-50 p-4 rounded-lg text-center">
+          <div class="text-3xl font-bold text-emerald-700">100+</div>
+          <div class="text-sm text-gray-600 bangla">{{ _('Products') }}</div>
+        </div>
+      </div>
+
+      <h2 class="text-2xl font-bold mt-8 mb-3 bangla">{{ _('Contact Us') }}</h2>
+      <div class="bg-gray-50 p-4 rounded-lg text-sm space-y-1">
+        <div>📞 {{ SHOP_PHONE }}</div>
+        <div>📍 <span class="bangla">{{ SHOP_ADDRESS_BN }}</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
